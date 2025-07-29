@@ -31,3 +31,4 @@ def vitals_ok(temperature, pulseRate, spo2):
   elif not spo2_ok(spo2):
     alert('Oxygen Saturation out of range!')
     return False
+  return True
