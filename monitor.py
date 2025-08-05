@@ -1,34 +1,26 @@
-
 from time import sleep
 import sys
 
-def temperature_ok(temperature):
-  return 95 <= temperature <= 102
-
-def pulseRate_ok(pulseRate):
-  return 60 <= pulseRate <= 100
-
-def spo2_ok(spo2):
-  return spo2 >= 90
+def is_in_range(value, min_val, max_val=None):
+    return value >= min_val if max_val is None else min_val <= value <= max_val
 
 def alert(msg):
-  print(msg)
-  for i in range(6):
-      print('\r* ', end='')
-      sys.stdout.flush()
-      sleep(1)
-      print('\r *', end='')
-      sys.stdout.flush()
-      sleep(1)
+    print(msg)
+    for _ in range(6):
+        for symbol in ['* ', ' *']:
+            print(f'\r{symbol}', end='')
+            sys.stdout.flush()
+            sleep(1)
 
 def vitals_ok(temperature, pulseRate, spo2):
-  if not temperature_ok(temperature):
-    alert('Temperature critical!')
-    return False
-  elif not pulseRate_ok(pulseRate):
-    alert('Pulse Rate is out of range!')
-    return False
-  elif not spo2_ok(spo2):
-    alert('Oxygen Saturation out of range!')
-    return False
-  return True
+    checks = [
+        (is_in_range(temperature, 95, 102), 'Temperature critical!'),
+        (is_in_range(pulseRate, 60, 100), 'Pulse Rate is out of range!'),
+        (is_in_range(spo2, 90), 'Oxygen Saturation out of range!')
+    ]
+
+    for ok, msg in checks:
+        if not ok:
+            alert(msg)
+            return False
+    return True
