@@ -12,17 +12,43 @@ Continuous monitoring of vital signs, such as respiration and heartbeat, plays a
 
 Monitoring requires accurate reading and thresholding of the vitals.
 
-## Extension Implemented
+# Vital Signs Monitor
 
-### Accept input in different units (New Feature)
+A simple Python tool to monitor **Temperature**, **Pulse**, and **SPO2** values, classify them into health conditions, and provide **localized messages** in English or German.  
 
-Some sensors report the **temperature in Celsius** instead of Fahrenheit.  
-We added support for specifying the unit (`"F"` or `"C"`) along with the measurement.  
+---
 
-To avoid duplicating thresholds in different units, the code **first translates all temperature values into a common unit (Fahrenheit)**, and then applies the same thresholds:
+## Features
+- Supports **multiple vital signs** (Temperature, Pulse, SPO2).  
+- Automatic **Celsius → Fahrenheit** conversion for temperature.  
+- **Localized messages** in English (`EN`) and German (`DE`).  
+- Early warning via **NEAR_HYPO** and **NEAR_HYPER** detection bands.  
+- Fully tested with `unittest` (includes mocking of `print`).  
 
-- upto 95°F: **HYPO_THERMIA**  
-- 95°F to 96.53°F: **NEAR_HYPO**  
-- 96.54°F to 100.47°F: **NORMAL**  
-- 100.48°F to 102°F: **NEAR_HYPER**  
-- 102°F and above: **HYPER_THERMIA**
+---
+
+## Classification Ranges
+
+Each vital sign is classified into **bands** using its lower and upper limits.  
+A **tolerance** of `1.5%` of the upper limit is applied to detect *near-critical* conditions.  
+
+| Vital        | Units      | HYPO (Below) | NEAR_HYPO (Up to) | NORMAL (Range) | NEAR_HYPER (Up to) | HYPER (Above) |
+|--------------|------------|--------------|-------------------|----------------|--------------------|---------------|
+| **Temperature** | °F (or °C → converted) | `< 95.0` | `95.0 – 96.53` | `96.54 – 100.47` | `100.48 – 102.0` | `> 102.0` |
+| **Pulse**      | Beats/min | `< 60` | `60 – 61.5` | `61.6 – 98.5` | `98.6 – 100` | `> 100` |
+| **SPO2**       | % Oxygen  | `< 90` | `90 – 91.5` | `91.6 – 98.5` | `98.6 – 100` | `> 100` |
+
+## Localized Messages
+
+Messages adapt automatically to the chosen language (`LANG` in `config.py`).  
+
+### Example (`EN`)
+- `Low Temperature - Hypo condition`  
+- `Pulse is normal`  
+- `Warning: Approaching high SPO2`  
+
+### Example (`DE`)
+- `Niedriges Temperatur - Hypo-Zustand`  
+- `Puls ist normal`  
+- `Warnung: Nähern sich hohem SPO2`  
+
