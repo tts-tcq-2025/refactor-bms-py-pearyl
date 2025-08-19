@@ -21,6 +21,10 @@ SPO2_LIMITS = {
 def is_in_range(value, min_val, max_val=None):
     return value >= min_val if max_val is None else min_val <= value <= max_val
 
+
+def celsius_to_fahrenheit(celsius):
+    return (celsius * 9/5) + 32
+
 def alert(msg):
     print(msg)
     for _ in range(6):
