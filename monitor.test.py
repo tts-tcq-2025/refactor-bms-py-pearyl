@@ -2,9 +2,7 @@ import unittest
 from unittest.mock import patch
 from monitor import vitals_ok, analyze_vital
 
-
 class TestMonitor(unittest.TestCase):
-
     def capture_print(self, func, *args, **kwargs):
         """Helper to run a function and capture printed output using mock."""
         with patch("builtins.print") as mock_print:
@@ -16,7 +14,7 @@ class TestMonitor(unittest.TestCase):
         vitals = {
             "Temperature": (98.6, "F"),
             "Pulse": (72, "BPM"),
-            "SPO2": (95, "%")
+            "SPO2": (95, "%"),
         }
 
         ok, printed = self.capture_print(vitals_ok, vitals)
@@ -26,25 +24,17 @@ class TestMonitor(unittest.TestCase):
         self.assertIn("Pulse is normal", printed)
         self.assertIn("SPO2 is normal", printed)
 
-    def test_vitals_ok_with_hyper(self):
-        vitals = {
-            "Pulse": (150, "BPM"),
-        }
-
-        ok, printed = self.capture_print(vitals_ok, vitals)
-
-        self.assertFalse(ok)
-        self.assertIn("High Pulse - Hyper condition", printed)
-
-    def test_vitals_ok_with_hypo(self):
-        vitals = {
-            "SPO2": (80, "%"),
-        }
-
-        ok, printed = self.capture_print(vitals_ok, vitals)
-
-        self.assertFalse(ok)
-        self.assertIn("Low SPO2 - Hypo condition", printed)
+    def test_vitals_hypo_and_hyper(self):
+        # Parametrized to avoid duplication
+        cases = [
+            ({"Pulse": (150, "BPM")}, False, "High Pulse - Hyper condition"),
+            ({"SPO2": (80, "%")}, False, "Low SPO2 - Hypo condition"),
+        ]
+        for vitals, expected_ok, expected_msg in cases:
+            with self.subTest(vitals=vitals):
+                ok, printed = self.capture_print(vitals_ok, vitals)
+                self.assertEqual(ok, expected_ok)
+                self.assertIn(expected_msg, printed)
 
     def test_temperature_conversion(self):
         # Celsius input should convert to Fahrenheit before analysis
@@ -52,7 +42,6 @@ class TestMonitor(unittest.TestCase):
         self.assertIn("Temperature is normal", msg)
 
     def test_near_hypo(self):
-        # Just above lower limit
         vitals = {"Pulse": (61, "BPM")}
         ok, printed = self.capture_print(vitals_ok, vitals)
 
@@ -60,13 +49,11 @@ class TestMonitor(unittest.TestCase):
         self.assertIn("Warning: Approaching low Pulse", printed)
 
     def test_near_hyper(self):
-        # Just below upper limit
         vitals = {"Temperature": (101.5, "F")}
         ok, printed = self.capture_print(vitals_ok, vitals)
 
         self.assertTrue(ok)
         self.assertIn("Warning: Approaching high Temperature", printed)
-
 
 if __name__ == "__main__":
     unittest.main()
