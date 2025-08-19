@@ -12,37 +12,17 @@ Continuous monitoring of vital signs, such as respiration and heartbeat, plays a
 
 Monitoring requires accurate reading and thresholding of the vitals.
 
-## Issues
+## Extension Implemented
 
-- The code here has high complexity in a single function.
-- The code is not modular 
-- The tests are not complete - they do not cover all the needs of a consumer
+### Accept input in different units (New Feature)
 
-## Tasks
+Some sensors report the **temperature in Celsius** instead of Fahrenheit.  
+We added support for specifying the unit (`"F"` or `"C"`) along with the measurement.  
 
-1. Reduce the cyclomatic complexity.
-1. Separate pure functions from I/O
-1. Avoid duplication - functions that do nearly the same thing
-1. Complete the tests - cover all conditions. 
+To avoid duplicating thresholds in different units, the code **first translates all temperature values into a common unit (Fahrenheit)**, and then applies the same thresholds:
 
-## Self-evaluation
-
-How well does our code hold-out in the rapidly evolving [WHDS](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6111409/)?
-Can we add future functionality without disturbing existing features? Can we do it with low effort and high reliability?
-
-## The future
-
-- May need new vital signs
-- A vendor may provide additional vital readings (e.g., blood pressure)
-- Limits may change based on the age of a patient
-
-> Predicting the future requires Astrology!
-
-## Keep it simple and testable
-
-Shorten the Semantic distance
-
-- Procedural to express sequence
-- Functional to express relation between input and output
-- Object oriented to encapsulate state with actions
-- Aspect oriented to capture repeating aspects
+- upto 95°F: **HYPO_THERMIA**  
+- 95°F to 96.53°F: **NEAR_HYPO**  
+- 96.54°F to 100.47°F: **NORMAL**  
+- 100.48°F to 102°F: **NEAR_HYPER**  
+- 102°F and above: **HYPER_THERMIA**
