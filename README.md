@@ -12,6 +12,8 @@ Continuous monitoring of vital signs, such as respiration and heartbeat, plays a
 
 Monitoring requires accurate reading and thresholding of the vitals.
 
+---
+
 # Vital Signs Monitor
 
 A simple Python tool to monitor **Temperature**, **Pulse**, and **SPO2** values, classify them into health conditions, and provide **localized messages** in English or German.  
@@ -38,17 +40,4 @@ A **tolerance** of `1.5%` of the upper limit is applied to detect *near-critical
 | **Pulse**      | Beats/min | `< 60` | `60 – 61.5` | `61.6 – 98.5` | `98.6 – 100` | `> 100` |
 | **SPO2**       | % Oxygen  | `< 90` | `90 – 91.5` | `91.6 – 98.5` | `98.6 – 100` | `> 100` |
 
-## Localized Messages
-
-Messages adapt automatically to the chosen language (`LANG` in `config.py`).  
-
-### Example (`EN`)
-- `Low Temperature - Hypo condition`  
-- `Pulse is normal`  
-- `Warning: Approaching high SPO2`  
-
-### Example (`DE`)
-- `Niedriges Temperatur - Hypo-Zustand`  
-- `Puls ist normal`  
-- `Warnung: Nähern sich hohem SPO2`  
-
+---
