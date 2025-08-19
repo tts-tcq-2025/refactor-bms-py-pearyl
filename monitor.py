@@ -1,53 +1,65 @@
-from time import sleep
-import sys
+LANG = "EN"
 
-TEMP_LIMITS_F = {
-    "min": 95,
-    "max": 102,
-    "message": "Temperature critical!"
+MESSAGES = {
+    "EN": {
+        "HYPO": "Low {vital} - Hypo condition",
+        "NEAR_HYPO": "Warning: Approaching low {vital}",
+        "NORMAL": "{vital} is Normal",
+        "NEAR_HYPER": "Warning: Approaching high {vital}",
+        "HYPER": "High {vital} - Hyper condition"
+    },
+    "DE": {
+        "HYPO": "Niedriges {vital} - Hypo-Zustand",
+        "NEAR_HYPO": "Warnung: Nähern sich niedrigem {vital}",
+        "NORMAL": "{vital} ist Normal",
+        "NEAR_HYPER": "Warnung: Nähern sich hohem {vital}",
+        "HYPER": "Hohes {vital} - Hyper-Zustand"
+    }
 }
 
-PULSE_LIMITS = {
-    "min": 60,
-    "max": 100,
-    "message": "Pulse Rate is out of range!"
+# Format: (lower_limit, upper_limit)
+LIMITS = {
+    "Temperature": (95, 102),    # Fahrenheit
+    "Pulse": (60, 100),          # BPM
+    "SPO2": (90, 100)            # Percent
 }
 
-SPO2_LIMITS = {
-    "min": 90,
-    "message": "Oxygen Saturation out of range!"
-}
+def c_to_f(temp_c: float) -> float:
+    """Convert Celsius to Fahrenheit."""
+    return temp_c * 9/5 + 32
 
-def is_in_range(value, min_val, max_val=None):
-    return value >= min_val if max_val is None else min_val <= value <= max_val
+def classify(value: float, vital: str) -> str:
+    """Map vital measurement to condition band."""
+    lower, upper = LIMITS[vital]
+    tol = 0.015 * upper  # 1.5% of upper limit
 
+    if value < lower:
+        return "HYPO"
+    elif lower <= value < lower + tol:
+        return "NEAR_HYPO"
+    elif lower + tol <= value <= upper - tol:
+        return "NORMAL"
+    elif upper - tol < value <= upper:
+        return "NEAR_HYPER"
+    else:
+        return "HYPER"
 
-def celsius_to_fahrenheit(celsius):
-    return (celsius * 9/5) + 32
+def message(condition: str, vital: str) -> str:
+    """Return localized message for given condition."""
+    return MESSAGES[LANG][condition].format(vital=vital)
 
-def alert(msg):
-    print(msg)
-    for _ in range(6):
-        for symbol in ['* ', ' *']:
-            print(f'\r{symbol}', end='')
-            sys.stdout.flush()
-            sleep(1)
+def analyze_vital(vital: str, value: float, unit: str = None) -> str:
+    """Analyze one vital, with unit conversion if needed."""
+    if vital == "Temperature" and unit == "C":
+        value = c_to_f(value)
+    cond = classify(value, vital)
+    return message(cond, vital)
 
-def vitals_ok(temperature, pulseRate, spo2, temp_unit="F"):
-    if temp_unit.upper() == "C":
-        temperature = celsius_to_fahrenheit(temperature)
-
-    checks = [
-        (is_in_range(temperature, TEMP_LIMITS_F["min"], TEMP_LIMITS_F["max"]),
-         TEMP_LIMITS_F["message"]),
-        (is_in_range(pulseRate, PULSE_LIMITS["min"], PULSE_LIMITS["max"]),
-         PULSE_LIMITS["message"]),
-        (is_in_range(spo2, SPO2_LIMITS["min"]),
-         SPO2_LIMITS["message"])
-    ]
-
-    for ok, msg in checks:
-        if not ok:
-            alert(msg)
-            return False
-    return True
+def vitals_ok(vitals: dict) -> bool:
+    """Check if all vitals are within acceptable range."""
+    results = []
+    for vital, (val, unit) in vitals.items():
+        msg = analyze_vital(vital, val, unit)
+        print(msg)
+        results.append("Normal" in msg or "Warnung" in msg or "Warning" in msg)
+    return all(results)
