@@ -1,28 +1,4 @@
-LANG = "EN"
-
-MESSAGES = {
-    "EN": {
-        "HYPO": "Low {vital} - Hypo condition",
-        "NEAR_HYPO": "Warning: Approaching low {vital}",
-        "NORMAL": "{vital} is Normal",
-        "NEAR_HYPER": "Warning: Approaching high {vital}",
-        "HYPER": "High {vital} - Hyper condition"
-    },
-    "DE": {
-        "HYPO": "Niedriges {vital} - Hypo-Zustand",
-        "NEAR_HYPO": "Warnung: Nähern sich niedrigem {vital}",
-        "NORMAL": "{vital} ist Normal",
-        "NEAR_HYPER": "Warnung: Nähern sich hohem {vital}",
-        "HYPER": "Hohes {vital} - Hyper-Zustand"
-    }
-}
-
-# Format: (lower_limit, upper_limit)
-LIMITS = {
-    "Temperature": (95, 102),    # Fahrenheit
-    "Pulse": (60, 100),          # BPM
-    "SPO2": (90, 100)            # Percent
-}
+from config import LANG, MESSAGES, LIMITS
 
 def c_to_f(temp_c: float) -> float:
     """Convert Celsius to Fahrenheit."""
